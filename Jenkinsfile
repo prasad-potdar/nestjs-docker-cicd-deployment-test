@@ -1,19 +1,12 @@
 pipeline {
     agent any
-
+    
     environment {
         IMAGE_NAME = 'nest-cicd-deployment-test-app'
     }
 
     stages {
-        stage('Verify Docker Access') {
-            steps {
-                sh 'docker --version'
-                sh 'docker info'
-            }
-        }
-
-         stage('Clone Repository') {
+        stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/prasad-potdar/nestjs-docker-cicd-deployment-test.git'
             }
