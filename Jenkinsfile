@@ -6,6 +6,13 @@ pipeline {
     }
 
     stages {
+        stage('Verify Docker Access') {
+            steps {
+                sh 'docker --version'
+                sh 'docker info'
+            }
+        }
+
          stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/prasad-potdar/nestjs-docker-cicd-deployment-test.git'
