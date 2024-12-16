@@ -16,8 +16,8 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image locally
-                    sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
-                    sh "docker tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ${IMAGE_NAME}:latest"
+                    sh "docker build -t ${IMAGE_NAME} ."
+                    sh "docker tag ${IMAGE_NAME} ${IMAGE_NAME}:latest"
                 }
             }
         }
