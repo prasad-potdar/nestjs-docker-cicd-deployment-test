@@ -1,9 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nest-cicd-deployment-test-app
-  labels:
-    app: nestjs
+  name: nestjs-app
 spec:
   replicas: 1
   selector:
@@ -15,10 +13,7 @@ spec:
         app: nestjs
     spec:
       containers:
-      - name: nestjs-container
-        image: localhost:9002/nest-cicd-deployment-test-app:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: production
+        - name: nest-cicd-deployment-test-app
+          image: host.docker.internal:9002/nest-cicd-deployment-test-app:latest  # Use host.docker.internal
+          ports:
+            - containerPort: 3000
