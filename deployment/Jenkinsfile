@@ -5,8 +5,7 @@ pipeline {
         IMAGE_NAME = 'nest-cicd-deployment-test-app'
         KUBE_NAMESPACE = 'default'
         DEPLOYMENT_NAME = 'nestjs-cicd-app'
-        REGISTRY_HOST = 'localhost'  // Update to access the local registry from Kubernetes
-        REGISTRY_PORT = '9002'  // The port of the local Docker registry
+        REGISTRY_HOST = 'prasadmpotdar/nestjs-app'  // Update to access the local registry from Kubernetes
     }
 
     stages {
@@ -32,8 +31,8 @@ pipeline {
             steps {
                 script {
                     // Push the image to the local registry
-                    sh "docker tag ${IMAGE_NAME}:latest ${REGISTRY_HOST}:${REGISTRY_PORT}/${IMAGE_NAME}:latest"
-                    sh "docker push ${REGISTRY_HOST}:${REGISTRY_PORT}/${IMAGE_NAME}:latest"
+                    sh "docker tag ${IMAGE_NAME}:latest ${REGISTRY_HOST}${IMAGE_NAME}:latest"
+                    sh "docker push ${REGISTRY_HOST}/${IMAGE_NAME}:latest"
                 }
             }
         }
