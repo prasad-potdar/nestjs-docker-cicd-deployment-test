@@ -14,6 +14,8 @@ RUN yarn install
 COPY . .
 
 # Build the NestJS application
+ARG BUILD_NUMBER
+ENV BUILD_NUMBER=$BUILD_NUMBER
 RUN yarn build
 
 # Expose the application port

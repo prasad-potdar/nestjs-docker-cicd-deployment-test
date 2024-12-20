@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'nest-cicd-deployment-test-app'
         KUBE_NAMESPACE = 'default'
-        DEPLOYMENT_NAME = 'nestjs-app'
+        DEPLOYMENT_NAME = 'nestjs-cicd-app'
     }
 
     stages {
@@ -28,8 +28,8 @@ pipeline {
         stage('Push Docker Image to Local Registry') {
             steps {
                 script {
-                    sh "docker tag ${IMAGE_NAME}:latest localhost:9097/${IMAGE_NAME}:latest"
-                    sh "docker push localhost:9097/${IMAGE_NAME}:latest"
+                    sh "docker tag ${IMAGE_NAME}:latest localhost:9002/${IMAGE_NAME}:latest"
+                    sh "docker push localhost:9002/${IMAGE_NAME}:latest"
                 }
             }
         }
