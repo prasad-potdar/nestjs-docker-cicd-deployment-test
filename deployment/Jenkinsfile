@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'nest-cicd-deployment-test-app'
+        KUBE_NAMESPACE = 'default'
+        DEPLOYMENT_NAME = 'nestjs-app'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/prasad-potdar/nestjs-docker-cicd-deployment-test.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    withEnv(["PATH+DOCKER=/usr/local/bin"]) {
+                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
+                        sh "docker tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ${IMAGE_NAME}:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image to Local Registry') {
+            steps {
+                script {
+                    sh "docker tag ${IMAGE_NAME}:latest localhost:5000/${IMAGE_NAME}:latest"
+                    sh "docker push localhost:5000/${IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh """
+                    kubectl apply -f deployment/k8s/deployment.yaml
+                    kubectl apply -f deployment/k8s/service.yaml
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+
+        success {
+            echo 'Deployment Successful'
+        }
+
+        failure {
+            echo 'Deployment Failed'
+        }
+
+        unstable {
+            echo 'Deployment Unstable'
+        }
+
+        changed {
+            echo 'Deployment Changed'
+        }
+    }
+}
