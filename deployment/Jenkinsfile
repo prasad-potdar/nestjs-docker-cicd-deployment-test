@@ -20,8 +20,8 @@ pipeline {
                 script {
                     withEnv(["PATH+DOCKER=/usr/local/bin"]) {
                         // Build the Docker image and tag it
-                        sh "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
-                        sh "docker tag ${IMAGE_NAME}:${env.BUILD_NUMBER} ${IMAGE_NAME}:latest"
+                        sh "docker build -t ${REGISTRY_HOST}/${IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
+                        sh "docker tag ${REGISTRY_HOST}/${IMAGE_NAME}:${env.BUILD_NUMBER} ${REGISTRY_HOST}/${IMAGE_NAME}:latest"
                     }
                 }
             }
