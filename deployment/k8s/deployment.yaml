@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: nestjs-container
-        image: localhost:5000/nest-cicd-deployment-test-app:latest
+        image: localhost:9002/nest-cicd-deployment-test-app:latest
         ports:
         - containerPort: 3000
         env:
