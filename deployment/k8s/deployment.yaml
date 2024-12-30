@@ -16,9 +16,9 @@ spec:
     spec:
       containers:
         - name: nestjs-app
-          image: prasadmpotdar/nestjs-app:${BUILD_NUMBER}  # Use the Jenkins build number for image version
+          image: <IMAGE_TAG>  # This placeholder will be replaced
           ports:
-            - containerPort: 3000  # Port where your app is running inside the container
+            - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
@@ -29,6 +29,6 @@ spec:
     app: nestjs
   ports:
     - protocol: TCP
-      port: 80  # Port exposed on the service
-      targetPort: 3000  # Port inside the container
-  type: NodePort  # Expose the service using NodePort (optional, or LoadBalancer)
+      port: 80
+      targetPort: 3000
+  type: NodePort
