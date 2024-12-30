@@ -83,6 +83,7 @@ pipeline {
         IMAGE_NAME = 'nestjs-app'
         REGISTRY_HOST = 'prasadmpotdar'
         FULL_IMAGE_NAME = "${REGISTRY_HOST}/${IMAGE_NAME}"
+        DOCKER_REPO_URL = 'https://hub.docker.com/r/prasadmpotdar/nestjs-app' // Docker Hub repository URL
     }
 
     stages {
@@ -92,24 +93,19 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    withEnv(["PATH+DOCKER=/usr/local/bin"]) {
-                        sh "docker build -t ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
-                        sh "docker tag ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} ${FULL_IMAGE_NAME}:latest"
-                    }
-                }
-            }
-        }
-
-        stage('Push Docker Image to Docker Hub') {
-            steps {
-                script {
-                    // Access the Docker Hub token securely
-                    withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'dckr_pat_bQ3J68I1vMt1rCU5opz5z6V7iwM', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                        // Login to Docker Hub
                         sh """
                         echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin
+                        """
+
+                        // Build and push Docker image
+                        sh """
+                        docker build -t ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile .
+                        docker tag ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} ${FULL_IMAGE_NAME}:latest
                         docker push ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}
                         docker push ${FULL_IMAGE_NAME}:latest
                         """
@@ -121,6 +117,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    // Deploy to Kubernetes using the Docker image
                     sh """
                     kubectl apply -f deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/service.yaml
@@ -135,6 +132,7 @@ pipeline {
             cleanWs()
         }
         success {
+            echo "Image pushed to Docker Hub: ${DOCKER_REPO_URL}"
             echo 'Deployment Successful'
         }
         failure {
