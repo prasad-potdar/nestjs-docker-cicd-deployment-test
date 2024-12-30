@@ -7,7 +7,6 @@ spec:
     app: nestjs
   ports:
     - protocol: TCP
-      port: 80        # Expose on this port
+      port: 80        # Exposed port on the service
       targetPort: 3000 # Container's internal port
-      nodePort: 30080  # Assign a port on the node for external access
-  type: NodePort  # Expose the service via NodePort
+  type: LoadBalancer # Minikube will simulate a LoadBalancer
