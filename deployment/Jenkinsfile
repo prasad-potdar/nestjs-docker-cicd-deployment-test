@@ -76,14 +76,12 @@
 //         }
 //     }
 // }
-
 pipeline {
     agent any
 
     environment {
         IMAGE_NAME = 'nestjs-app'
         REGISTRY_HOST = 'prasadmpotdar'
-        REPOSITORY_URL = 'https://hub.docker.com/repository/docker/prasadmpotdar/nestjs-app/general'
         FULL_IMAGE_NAME = "${REGISTRY_HOST}/${IMAGE_NAME}"
     }
 
@@ -98,7 +96,6 @@ pipeline {
             steps {
                 script {
                     withEnv(["PATH+DOCKER=/usr/local/bin"]) {
-                        // Build the Docker image and tag it
                         sh "docker build -t ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
                         sh "docker tag ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} ${FULL_IMAGE_NAME}:latest"
                     }
@@ -109,13 +106,13 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'dckr_pat_bQ3J68I1vMt1rCU5opz5z6V7iwM', variable: 'DOCKER_ACCESS_TOKEN')]) {
-                        // Login to Docker Hub using access token
-                        sh "echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin"
-
-                        // Push the image to Docker Hub
-                        sh "docker push ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        sh "docker push ${FULL_IMAGE_NAME}:latest"
+                    // Access the Docker Hub token securely
+                    withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                        sh """
+                        echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin
+                        docker push ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}
+                        docker push ${FULL_IMAGE_NAME}:latest
+                        """
                     }
                 }
             }
@@ -124,7 +121,6 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Ensure the Kubernetes deployment file is configured correctly to pull from Docker Hub
                     sh """
                     kubectl apply -f deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/service.yaml
@@ -138,22 +134,13 @@ pipeline {
         always {
             cleanWs()
         }
-
         success {
             echo 'Deployment Successful'
         }
-
         failure {
             echo 'Deployment Failed'
         }
-
-        unstable {
-            echo 'Deployment Unstable'
-        }
-
-        changed {
-            echo 'Deployment Changed'
-        }
     }
 }
+
 
