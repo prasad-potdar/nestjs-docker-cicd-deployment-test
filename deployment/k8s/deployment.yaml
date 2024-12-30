@@ -1,3 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nestjs-app
+  labels:
+    app: nestjs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nestjs
+  template:
+    metadata:
+      labels:
+        app: nestjs
+    spec:
+      containers:
+        - name: nestjs-app
+          image: prasadmpotdar/nestjs-app:${BUILD_NUMBER}  # Use the Jenkins build number for image version
+          ports:
+            - containerPort: 3000  # Port where your app is running inside the container
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -7,6 +29,6 @@ spec:
     app: nestjs
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: ClusterIP
+      port: 80  # Port exposed on the service
+      targetPort: 3000  # Port inside the container
+  type: NodePort  # Expose the service using NodePort (optional, or LoadBalancer)

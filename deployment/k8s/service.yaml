@@ -7,7 +7,6 @@ spec:
     app: nestjs
   ports:
     - protocol: TCP
-      port: 80           # Port on the service
-      targetPort: 3000    # Port on the container
-      nodePort: 30080     # The specific NodePort you want to expose (optional)
-  type: NodePort          # Change to NodePort instead of LoadBalancer
+      port: 80
+      targetPort: 3000
+  type: NodePort  # Or use LoadBalancer depending on your requirements
