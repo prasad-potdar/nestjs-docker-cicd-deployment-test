@@ -1,11 +1,90 @@
+// pipeline {
+//     agent any
+
+//     environment {
+//         IMAGE_NAME = 'nestjs-app'
+//         REGISTRY_HOST = 'prasadmpotdar'
+//         FULL_IMAGE_NAME = "${REGISTRY_HOST}/${IMAGE_NAME}"
+//     }
+
+//     stages {
+//         stage('Clone Repository') {
+//             steps {
+//                 git branch: 'main', url: 'https://github.com/prasad-potdar/nestjs-docker-cicd-deployment-test.git'
+//             }
+//         }
+
+//         stage('Build Docker Image') {
+//             steps {
+//                 script {
+//                     withEnv(["PATH+DOCKER=/usr/local/bin"]) {
+//                         // Build the Docker image and tag it
+//                         sh "docker build -t ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
+//                         sh "docker tag ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} ${FULL_IMAGE_NAME}:latest"
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Push Docker Image to Docker Hub') {
+//             steps {
+//                 script {
+//                     withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
+//                         // Login to Docker Hub using access token
+//                         sh "echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin"
+
+//                         // Push the image to Docker Hub
+//                         sh "docker push ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}"
+//                         sh "docker push ${FULL_IMAGE_NAME}:latest"
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Deploy to Kubernetes') {
+//             steps {
+//                 script {
+//                     // Ensure the Kubernetes deployment file is configured correctly to pull from Docker Hub
+//                     sh """
+//                     kubectl apply -f deployment/k8s/deployment.yaml
+//                     kubectl apply -f deployment/k8s/service.yaml
+//                     """
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         always {
+//             cleanWs()
+//         }
+
+//         success {
+//             echo 'Deployment Successful'
+//         }
+
+//         failure {
+//             echo 'Deployment Failed'
+//         }
+
+//         unstable {
+//             echo 'Deployment Unstable'
+//         }
+
+//         changed {
+//             echo 'Deployment Changed'
+//         }
+//     }
+// }
+
 pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'nest-cicd-deployment-test-app'
-        KUBE_NAMESPACE = 'default'
-        DEPLOYMENT_NAME = 'nestjs-cicd-app'
-        REGISTRY_HOST = 'prasadmpotdar/nestjs-app'  // Update to access the local registry from Kubernetes
+        IMAGE_NAME = 'nestjs-app'
+        REGISTRY_HOST = 'prasadmpotdar'
+        REPOSITORY_URL = 'https://hub.docker.com/repository/docker/prasadmpotdar/nestjs-app/general'
+        FULL_IMAGE_NAME = "${REGISTRY_HOST}/${IMAGE_NAME}"
     }
 
     stages {
@@ -20,19 +99,24 @@ pipeline {
                 script {
                     withEnv(["PATH+DOCKER=/usr/local/bin"]) {
                         // Build the Docker image and tag it
-                        sh "docker build -t ${REGISTRY_HOST}/${IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
-                        sh "docker tag ${REGISTRY_HOST}/${IMAGE_NAME}:${env.BUILD_NUMBER} ${REGISTRY_HOST}/${IMAGE_NAME}:latest"
+                        sh "docker build -t ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} -f deployment/Dockerfile ."
+                        sh "docker tag ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER} ${FULL_IMAGE_NAME}:latest"
                     }
                 }
             }
         }
 
-        stage('Push Docker Image to Local Registry') {
+        stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    // Push the image to the local registry
-                    sh "docker tag ${IMAGE_NAME}:latest ${REGISTRY_HOST}${IMAGE_NAME}:latest"
-                    sh "docker push ${REGISTRY_HOST}/${IMAGE_NAME}:latest"
+                    withCredentials([string(credentialsId: 'dckr_pat_bQ3J68I1vMt1rCU5opz5z6V7iwM', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                        // Login to Docker Hub using access token
+                        sh "echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin"
+
+                        // Push the image to Docker Hub
+                        sh "docker push ${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                        sh "docker push ${FULL_IMAGE_NAME}:latest"
+                    }
                 }
             }
         }
@@ -40,7 +124,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Ensure the Kubernetes deployment file is configured correctly to pull from the local registry
+                    // Ensure the Kubernetes deployment file is configured correctly to pull from Docker Hub
                     sh """
                     kubectl apply -f deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/service.yaml
@@ -72,3 +156,4 @@ pipeline {
         }
     }
 }
+
