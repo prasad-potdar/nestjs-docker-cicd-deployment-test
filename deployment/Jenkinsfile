@@ -119,7 +119,7 @@ pipeline {
                 script {
                     // Replace the <IMAGE_TAG> placeholder in deployment.yaml with the actual image tag
                     sh """
-                    sed -i 's|<IMAGE_TAG>|${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}|g' deployment/k8s/deployment.yaml
+                    sed -i "" 's|<IMAGE_TAG>|${FULL_IMAGE_NAME}:${env.BUILD_NUMBER}|g' deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/service.yaml
                     """
