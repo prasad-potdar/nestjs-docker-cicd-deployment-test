@@ -117,7 +117,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Deploy to Kubernetes using the Docker image
+                    // Apply Kubernetes deployment and service YAML files
                     sh """
                     kubectl apply -f deployment/k8s/deployment.yaml
                     kubectl apply -f deployment/k8s/service.yaml
@@ -140,6 +140,3 @@ pipeline {
         }
     }
 }
-
-
-
