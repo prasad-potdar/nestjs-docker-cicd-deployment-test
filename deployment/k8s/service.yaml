@@ -7,7 +7,7 @@ spec:
     app: nestjs
   ports:
     - protocol: TCP
-      port: 80           # Port on the service
-      targetPort: 3000    # Port on the container
-      nodePort: 30080     # External port
-  type: NodePort
+      port: 80        # Expose on this port
+      targetPort: 3000 # Container's internal port
+      nodePort: 30080  # Assign a port on the node for external access
+  type: NodePort  # Expose the service via NodePort
