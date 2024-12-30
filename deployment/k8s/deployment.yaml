@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nestjs-app
-  labels:
-    app: nestjs
 spec:
   replicas: 1
   selector:
@@ -15,20 +13,19 @@ spec:
         app: nestjs
     spec:
       containers:
-        - name: nestjs-app
-          image: <IMAGE_TAG>  # This placeholder will be replaced
-          ports:
-            - containerPort: 3000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nestjs-app-service
-spec:
-  selector:
-    app: nestjs
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: NodePort
+      - name: nestjs-app
+        image: prasadmpotdar/nestjs-app:latest
+        ports:
+        - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
