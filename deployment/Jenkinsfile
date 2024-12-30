@@ -96,7 +96,7 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'dckr_pat_bQ3J68I1vMt1rCU5opz5z6V7iwM', variable: 'DOCKER_ACCESS_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'docker-hub-access-token', variable: 'DOCKER_ACCESS_TOKEN')]) {
                         // Login to Docker Hub
                         sh """
                         echo $DOCKER_ACCESS_TOKEN | docker login -u $REGISTRY_HOST --password-stdin
